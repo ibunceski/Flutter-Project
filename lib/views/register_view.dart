@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer' as devtools show log;
 import 'package:notesapp/constants/routes.dart';
+import 'package:notesapp/utilities/show_error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -57,18 +57,39 @@ class _RegisterViewState extends State<RegisterView> {
                 try {
                   final userCredential = await FirebaseAuth.instance
                       .createUserWithEmailAndPassword(
-                          email: email, password: password);
-                  devtools.log(userCredential.toString());
+                    email: email,
+                    password: password,
+                  );
+                  final user = FirebaseAuth.instance.currentUser;
+                  await user?.sendEmailVerification();
+                  Navigator.of(context).pushNamed(verify_email_route);
+
                 } on FirebaseAuthException catch (exception) {
-                  if (exception.code == "weak-password") {
-                  } else if (exception.code == "email-already-exists") {
-                  } else if (exception.code == "invalid-email") {}
+                  if (exception.code == "invalid-email") {
+                    await showErrorDialog(
+                        context, "The provided email address is invalid.");
+                  } else if (exception.code == "email-already-in-use") {
+                    await showErrorDialog(context,
+                        "There is already an user registerd with this email.");
+                  } else if (exception.code == "weak-password") {
+                    await showErrorDialog(context,
+                        "The password is weak, please create a stronger password.");
+                  } else {
+                    showErrorDialog(context,
+                        "There was an error registering your account ${exception.code}");
+                  }
+                } catch (exception) {
+                  showErrorDialog(context,
+                      "There was an error registering your account ${exception.toString()}");
                 }
               },
               child: const Text("Register")),
-          TextButton(onPressed: () {
-            Navigator.of(context).pushNamedAndRemoveUntil(login_route, (route) => false);
-          }, child: const Text("Already registered? Login here!"))
+          TextButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil(login_route, (route) => false);
+              },
+              child: const Text("Already registered? Login here!"))
         ],
       ),
     );
