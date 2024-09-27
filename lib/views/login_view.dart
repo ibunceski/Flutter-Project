@@ -38,8 +38,8 @@ class _LoginViewState extends State<LoginView> {
             keyboardType: TextInputType.emailAddress,
             controller: _email,
             autocorrect: false,
-            decoration:
-                const InputDecoration(hintText: "Enter your email address here"),
+            decoration: const InputDecoration(
+                hintText: "Enter your email address here"),
           ),
           TextField(
             keyboardType: TextInputType.visiblePassword,
@@ -55,28 +55,39 @@ class _LoginViewState extends State<LoginView> {
                 final email = _email.text;
                 final password = _password.text;
                 try {
-                  await FirebaseAuth.instance
-                      .signInWithEmailAndPassword(
-                          email: email, password: password);
-                  Navigator.of(context).pushNamedAndRemoveUntil(notes_route, (route) => false);
+                  await FirebaseAuth.instance.signInWithEmailAndPassword(
+                      email: email, password: password);
+                  final user = FirebaseAuth.instance.currentUser;
+                  if (user?.emailVerified ?? false) {
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      verify_email_route,
+                      (route) => false,
+                    );
+                  } else {
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      notes_route,
+                      (route) => false,
+                    );
+                  }
                 } on FirebaseAuthException catch (exception) {
                   if (exception.code == "invalid-credential") {
                     await showErrorDialog(context, "Invalid credentials");
                   } else {
                     await showErrorDialog(context, "Error: ${exception.code}");
                   }
-                }catch (e){
-                    await showErrorDialog(context, "Error: ${e.toString()}");
+                } catch (e) {
+                  await showErrorDialog(context, "Error: ${e.toString()}");
                 }
               },
               child: const Text("Login")),
-              TextButton(onPressed: (){
-                Navigator.of(context).pushNamedAndRemoveUntil(register_route, (route) => false);
-              }, child: const Text("Not registered yet? Register here!"))
+          TextButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil(register_route, (route) => false);
+              },
+              child: const Text("Not registered yet? Register here!"))
         ],
       ),
     );
   }
 }
-
-
