@@ -1,4 +1,4 @@
-import 'package:notesapp/services/auth/auth.exceptions.dart';
+import 'package:notesapp/services/auth/auth_exceptions.dart';
 import 'package:notesapp/services/auth/auth_provider.dart';
 import 'package:notesapp/services/auth/auth_user.dart';
 import 'package:test/test.dart';
@@ -117,7 +117,7 @@ class MockAuthProvider implements AuthProvider{
     if(!isInitialized) throw NotInitializedException();
     final user = _user;
     if(user == null) throw UserNotLoggedInAuthException();
-    final newUser = const AuthUser(isEmailVerified: true);
+    const newUser = AuthUser(isEmailVerified: true);
     _user = newUser;
   }
 
