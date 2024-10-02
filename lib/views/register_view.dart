@@ -59,7 +59,7 @@ class _RegisterViewState extends State<RegisterView> {
                   await AuthService.firebase()
                       .createUser(email: email, password: password);
                   await AuthService.firebase().sendEmailVerification();
-                  Navigator.of(context).pushNamed(verify_email_route);
+                  Navigator.of(context).pushNamed(verifyEmailRoute);
                 } on InvalidEmailAuthException {
                   await showErrorDialog(
                       context, "The provided email address is invalid.");
@@ -78,7 +78,7 @@ class _RegisterViewState extends State<RegisterView> {
           TextButton(
               onPressed: () {
                 Navigator.of(context)
-                    .pushNamedAndRemoveUntil(login_route, (route) => false);
+                    .pushNamedAndRemoveUntil(loginRoute, (route) => false);
               },
               child: const Text("Already registered? Login here!"))
         ],

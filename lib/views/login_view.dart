@@ -62,12 +62,12 @@ class _LoginViewState extends State<LoginView> {
                   print(user?.isEmailVerified);
                   if (user?.isEmailVerified == false) {
                     Navigator.of(context).pushNamedAndRemoveUntil(
-                      verify_email_route,
+                      verifyEmailRoute,
                       (route) => false,
                     );
                   } else {
                     Navigator.of(context).pushNamedAndRemoveUntil(
-                      notes_route,
+                      notesRoute,
                       (route) => false,
                     );
                   }
@@ -81,7 +81,7 @@ class _LoginViewState extends State<LoginView> {
           TextButton(
               onPressed: () {
                 Navigator.of(context)
-                    .pushNamedAndRemoveUntil(register_route, (route) => false);
+                    .pushNamedAndRemoveUntil(registerRoute, (route) => false);
               },
               child: const Text("Not registered yet? Register here!"))
         ],
