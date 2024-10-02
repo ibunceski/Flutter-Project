@@ -7,31 +7,33 @@ import 'package:path/path.dart' show join;
 
 import 'package:notesapp/services/crud/crud_exceptions.dart';
 
-
-
 class NotesService {
   Database? _db;
 
   List<DatabaseNote> _notes = [];
+  late final StreamController<List<DatabaseNote>> _notesStreamController;
 
   static final NotesService _shared = NotesService._sharedInstance();
-  NotesService._sharedInstance();                                         //singleton
+  NotesService._sharedInstance() {
+    _notesStreamController =
+        StreamController<List<DatabaseNote>>.broadcast(onListen: () {
+      _notesStreamController.sink.add(_notes);
+    });
+  } //singleton
   factory NotesService() => _shared;
-
-  final _notesStreamController = StreamController<List<DatabaseNote>>.broadcast();
 
   Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
 
   Future<DatabaseUser> getOrCreateUser({required String email}) async {
-      try{
-        final user = await findUser(email: email);
-        return user;
-      }on CouldNotFindUserException{
-          final createdUser = await createUser(email: email);
-          return createdUser;
-      } catch(e){
-        rethrow;
-      }
+    try {
+      final user = await findUser(email: email);
+      return user;
+    } on CouldNotFindUserException {
+      final createdUser = await createUser(email: email);
+      return createdUser;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> _cacheNotes() async {
@@ -77,11 +79,11 @@ class NotesService {
     }
   }
 
-  Future<void> _ensureDbIsOpen() async{
-    try{
+  Future<void> _ensureDbIsOpen() async {
+    try {
       await open();
-    }on DatabaseAlreadyOpenException{
-        //catch
+    } on DatabaseAlreadyOpenException {
+      //catch
     }
   }
 
@@ -176,7 +178,7 @@ class NotesService {
 
     if (deletedCount == 0) {
       throw CouldNotDeleteNoteException();
-    }else{
+    } else {
       _notes.removeWhere((note) => note.id == id);
       _notesStreamController.add(_notes);
     }
