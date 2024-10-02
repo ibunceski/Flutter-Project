@@ -33,9 +33,11 @@ class _NotesViewState extends State<NotesView> {
         appBar: AppBar(
           title: const Text("Your Notes"),
           actions: [
-            IconButton(onPressed: (){
-              Navigator.of(context).pushNamed(new_note_route);
-            }, icon: const Icon(Icons.add)),
+            IconButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamed(new_note_route);
+                },
+                icon: const Icon(Icons.add)),
             PopupMenuButton<MenuAction>(
               onSelected: (value) async {
                 switch (value) {
@@ -61,22 +63,22 @@ class _NotesViewState extends State<NotesView> {
         body: FutureBuilder(
           future: _notesService.getOrCreateUser(email: userEmail),
           builder: (context, snapshot) {
-            switch(snapshot.connectionState){
+            switch (snapshot.connectionState) {
               case ConnectionState.done:
                 return StreamBuilder(
                   stream: _notesService.allNotes,
                   builder: (context, snapshot) {
-                    switch(snapshot.connectionState){
+                    switch (snapshot.connectionState) {
                       case ConnectionState.waiting:
+                      case ConnectionState.active:
                         return const Text("Waiting for all notes");
                       default:
-                      return const CircularProgressIndicator();
+                        return const CircularProgressIndicator();
                     }
                   },
                 );
               default:
                 return const CircularProgressIndicator();
-  
             }
           },
         ));
