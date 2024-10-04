@@ -11,52 +11,51 @@ class FirebaseCloudStorage {
   FirebaseCloudStorage._sharedInstance();
   factory FirebaseCloudStorage() => _shared;
 
-  void createNewNote({required String userOwnerId}) async {
-    await notes.add({
+  Future<CloudNote> createNewNote({required String userOwnerId}) async {
+    final document = await notes.add({
       ownerUserIdFieldName: userOwnerId,
       textFieldName: "",
     });
+    final fetchedNote = await document.get();
+    return CloudNote(
+      documentId: fetchedNote.id,
+      ownerUserId: userOwnerId,
+      text: "",
+    );
+  }
 
-    Future<Iterable<CloudNote>> getNotes({required String ownerUserId}) async {
-      try {
-        return await notes
-            .where(ownerUserIdFieldName, isEqualTo: ownerUserId)
-            .get()
-            .then(
-              (value) => value.docs.map(
-                (doc) {
-                  return CloudNote(
-                      documentId: doc.id,
-                      ownerUserId: doc.data()[ownerUserIdFieldName],
-                      text: doc.data()[textFieldName]);
-                },
-              ),
-            );
-      } catch (e) {
-        throw CouldNotGetAllNotesException();
-      }
+  Future<Iterable<CloudNote>> getNotes({required String ownerUserId}) async {
+    try {
+      return await notes
+          .where(ownerUserIdFieldName, isEqualTo: ownerUserId)
+          .get()
+          .then(
+            (value) => value.docs.map((doc) => CloudNote.fromSnapshot(doc)),
+          );
+    } catch (e) {
+      throw CouldNotGetAllNotesException();
     }
+  }
 
-    Stream<Iterable<CloudNote>> allNotes({required String ownerUserId}) =>
-        notes.snapshots().map((e) => e.docs
-            .map((doc) => CloudNote.fromSnapshot(doc))
-            .where((doc) => doc.ownerUserId == ownerUserId));
+  Stream<Iterable<CloudNote>> allNotes({required String ownerUserId}) =>
+      notes.snapshots().map((e) => e.docs
+          .map((doc) => CloudNote.fromSnapshot(doc))
+          .where((doc) => doc.ownerUserId == ownerUserId));
 
-    Future<void> updateNote(
-        {required String documentId, required String text}) async {
-      try {
-        notes.doc(documentId).update({textFieldName: text});
-      } catch (e) {
-        throw CouldNotUpdateNoteException();
-      }
+  Future<void> updateNote(
+      {required String documentId, required String text}) async {
+    try {
+      notes.doc(documentId).update({textFieldName: text});
+    } catch (e) {
+      throw CouldNotUpdateNoteException();
     }
+  }
 
-    Future<void> deleteNote({required String documentId}) async {
-      try {
-        await notes.doc(documentId).delete();
-      } catch (e) {
-        throw CouldNotDeleteNoteException();
-      }
+  Future<void> deleteNote({required String documentId}) async {
+    try {
+      await notes.doc(documentId).delete();
+    } catch (e) {
+      throw CouldNotDeleteNoteException();
     }
   }
 }
