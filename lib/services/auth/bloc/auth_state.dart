@@ -1,41 +1,53 @@
-import 'package:flutter/material.dart';
-import 'package:notesapp/services/auth/auth_user.dart';
-import 'package:equatable/equatable.dart';
+  import 'package:flutter/material.dart';
+  import 'package:notesapp/services/auth/auth_user.dart';
+  import 'package:equatable/equatable.dart';
 
-@immutable
-abstract class AuthState {
-  const AuthState();
-}
+  @immutable
+  abstract class AuthState {
+    final bool isLoading;
+    final String? loadingText;
 
-class AuthStateUninitialized extends AuthState {
-  const AuthStateUninitialized();
-}
+    const AuthState({
+      required this.isLoading,
+      this.loadingText = "Please wait for a moment",
+    });
+  }
 
-class AuthStateRegistering extends AuthState {
-  final Exception? exception;
+  class AuthStateUninitialized extends AuthState {
+    const AuthStateUninitialized({required super.isLoading});
+  }
 
-  const AuthStateRegistering(this.exception);
-}
+  class AuthStateRegistering extends AuthState {
+    final Exception? exception;
 
-class AuthStateLoggedIn extends AuthState {
-  final AuthUser user;
+    const AuthStateRegistering({
+      required this.exception,
+      required super.isLoading,
+    });
+  }
 
-  const AuthStateLoggedIn(this.user);
-}
+  class AuthStateLoggedIn extends AuthState {
+    final AuthUser user;
 
-class AuthStateNeedsVerifiction extends AuthState {
-  const AuthStateNeedsVerifiction();
-}
+    const AuthStateLoggedIn({
+      required this.user,
+      required super.isLoading,
+    });
+  }
 
-class AuthStateLoggedOut extends AuthState with EquatableMixin {
-  final Exception? exception;
-  final bool isLoading;
+  class AuthStateNeedsVerifiction extends AuthState {
+    const AuthStateNeedsVerifiction({required super.isLoading});
+  }
 
-  const AuthStateLoggedOut({
-    required this.exception,
-    required this.isLoading,
-  });
-  
-  @override
-  List<Object?> get props => [exception, isLoading];
-}
+  class AuthStateLoggedOut extends AuthState with EquatableMixin {
+    final Exception? exception;
+
+    const AuthStateLoggedOut({
+      required this.exception,
+      required super.isLoading,
+      super.loadingText,
+    });
+
+    @override
+    List<Object?> get props => [exception, isLoading];
+  }
