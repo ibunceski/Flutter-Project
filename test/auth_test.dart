@@ -1,6 +1,7 @@
 import 'package:notesapp/services/auth/auth_exceptions.dart';
 import 'package:notesapp/services/auth/auth_provider.dart';
 import 'package:notesapp/services/auth/auth_user.dart';
+import 'package:notesapp/services/auth/bloc/auth_state.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -62,6 +63,29 @@ void main() {
       final user = provider.currentUser;
       expect(user, isNotNull);
     });
+
+    test("Should throw exception if not initialized", () async {
+      try {
+        await provider.sendPasswordReset(toEmail: "ibunc@gm.com");
+      } catch (e) {
+        expect(e, isA<NotInitializedException>());
+      }
+    });
+
+    test("Should throw UserNotFoundAuthException for unregistered email",
+        () async {
+      await provider.initialize();
+      expect(
+        provider.sendPasswordReset(toEmail: "unknown@gm.com"),
+        throwsA(isA<UserNotFoundAuthException>()),
+      );
+    });
+
+    test("Should send password reset for registered email", () async {
+      await provider.initialize();
+      await provider.sendPasswordReset(toEmail: "ibunc@gm.com");
+      // No exception thrown, so we pass the test.
+    });
   });
 }
 
@@ -116,5 +140,12 @@ class MockAuthProvider implements AuthProvider {
     const newUser =
         AuthUser(id: "myid", isEmailVerified: true, email: 'ibunc@gm.com');
     _user = newUser;
+  }
+
+  @override
+  Future<void> sendPasswordReset({required String toEmail}) async {
+    if (!_isInitialized) throw NotInitializedException();
+    if (toEmail != "ibunc@gm.com") throw UserNotFoundAuthException();
+    await Future.delayed(const Duration(seconds: 1));
   }
 }
