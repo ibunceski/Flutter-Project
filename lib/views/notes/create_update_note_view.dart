@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notesapp/extensions/list/buildcontext/loc.dart';
 import 'package:notesapp/services/auth/auth_service.dart';
 import 'package:notesapp/utilities/dialogs/cannot_share_empty_note_dialog.dart';
 import 'package:notesapp/utilities/generics/get_arguments.dart';
@@ -89,14 +90,14 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("New Note"),
+          title: Text(context.loc.note),
           actions: [
             IconButton(
               onPressed: () async {
                 final text = _textController.text;
-                if(_note == null || text.isEmpty){
-                    await showCannotShareEmptyNoteDialog(context);
-                }else{
+                if (_note == null || text.isEmpty) {
+                  await showCannotShareEmptyNoteDialog(context);
+                } else {
                   Share.share(text);
                 }
               },
@@ -114,8 +115,8 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
                   controller: _textController,
                   keyboardType: TextInputType.multiline,
                   maxLines: null,
-                  decoration: const InputDecoration(
-                      hintText: "Start typing your note..."),
+                  decoration: InputDecoration(
+                      hintText: context.loc.start_typing_your_note),
                 );
               default:
                 return const CircularProgressIndicator();
